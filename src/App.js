@@ -1,26 +1,54 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-function App() {
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import _ from 'lodash'
+
+import * as actions from './services/actions'
+import Slideshow from './components/slideshow'
+import Searchbar from './components/searchbar'
+
+function App(props) {
+  const {
+    actions,
+    results,
+    previousImage,
+    currentImage,
+    nextImage
+  } = props
+        
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Superhuman Image Project</h1>
+      <Searchbar onSearch={_.debounce(actions.search, 1000)} />
+      <Slideshow 
+        results={results}  
+        prevImage={previousImage} 
+        currentImage={currentImage} 
+        nextImage={nextImage} 
+        next={actions.nextImage}
+        prev={actions.previousImage}
+      />
     </div>
   );
 }
 
-export default App;
+function mapStateToProps (state) {
+  return {
+    results: state.search.results,
+    currentImage: state.search.image,
+    previousImage: state.search.previous_image,
+    nextImage: state.search.next_image
+  }
+}
+
+function mapDispatchToProps (dispatch) {
+  return {
+    dispatch,
+    actions: bindActionCreators(actions, dispatch)
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
